@@ -12,11 +12,16 @@ import os
 app = Flask(__name__)
 app.register_blueprint(app_views, url_prefix="/api/v1")
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
-auth = None 
+auth = None
+
+
 
 AUTH_TYPE = getenv("AUTH_TYPE")
 
-if AUTH_TYPE == "auth":
+if AUTH_TYPE == "BasicAuth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+elif AUTH_TYPE == "auth":
     from api.v1.auth.auth import Auth
     auth = Auth()
 
@@ -57,7 +62,6 @@ def before_request():
         abort(403)
 
 if __name__ == "__main__":
-    print(app.url_map)
     host = getenv("API_HOST", "0.0.0.0")
     port = getenv("API_PORT", "5000")
     app.run(host=host, port=port)
