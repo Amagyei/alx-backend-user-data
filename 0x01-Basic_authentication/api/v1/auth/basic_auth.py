@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Module of Auth views
+""" Module of Basic Auth views
 """
 from auth import Auth
 
