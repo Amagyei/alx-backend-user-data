@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+""" Module of Auth views
+"""
 from flask import request
 from typing import List, TypeVar
 
