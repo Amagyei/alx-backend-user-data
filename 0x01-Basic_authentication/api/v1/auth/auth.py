@@ -1,6 +1,5 @@
 from flask import request
-from types import TypeVar
-
+from typing import List, TypeVar
 
 class Auth:
     """ Auth class
