@@ -2,6 +2,8 @@
 """ Authentication Module """
 import bcrypt
 from db import DB
+from sqlalchemy.orm.exc import NoResultFound
+
 
 
 class Auth:
@@ -12,16 +14,11 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> None:
-        """ Registers a user in the database """
-        # Check if email exists
-        if self._db.find_user_by(email=email):
-            raise ValueError("User {} already exists".format(email))
-
-        # Hash the password
-        hash = _hash_password(password)
-
-        # Save the user to the database
-        self._db.add_user(email, hash)
+        try:
+            self._db.find_user_by(email=email)
+        except NoResultFound:
+            return self._db.add_user(email, _hash_password(password))
+        raise ValueError("User {} already exists".format(email))
 
 
 def _hash_password(password: str) -> str:

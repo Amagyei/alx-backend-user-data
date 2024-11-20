@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DB module
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, tuple_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
@@ -19,7 +19,7 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -45,31 +45,30 @@ class DB:
     def find_user_by(self, **kwargs: dict) -> User:
         """ allows user search through  keyword
         """
+        fields, values = [], []
         for key, value in kwargs.items():
-            try:
-                if not hasattr(User, key):  # Check if the attribute exists in the User model
-                    raise InvalidRequestError(f"Invalid attribute: {key}")
-                query = self._session.query(User).filter(getattr(User, key) == value)
-                user = query.first()
-                if not user:
-                    raise NoResultFound("No user found with the given arguments.")
-                return user
-
-            except InvalidRequestError as e:
-                raise InvalidRequestError(f"Invalid request: {e}")
-            except NoResultFound as e:
-                raise NoResultFound(f"No result found: {e}")
+            if hasattr(User, key):
+                fields.append(getattr(User, key))
+                values.append(value)
+            else:
+                raise InvalidRequestError()
+        result = self._session.query(User).filter(
+            tuple_(*fields).in_([tuple(values)])
+        ).first()
+        if result is None:
+            raise NoResultFound()
+        return result
 
     def update_user(self, id, **kwargs: dict) -> None:
         try:
             user = self.find_user_by(id=id)
             if not user:
-                raise ValueError("User not found.")
+                raise ValueError
             for key, value in kwargs.items():
                 if hasattr(user, key):
                     setattr(user, key, value)
                 else:
-                    raise ValueError(f"invalid attribute: {key}")
+                    raise ValueError
 
             self._session.commit()
 
