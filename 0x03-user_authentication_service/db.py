@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
-import sqlalchemy.exc
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 import bcrypt
 
 from user import Base, User
@@ -46,14 +47,18 @@ class DB:
         """
         for key, value in kwargs.items():
             try:
-                first_row = self._session.query(User).filter(
-                     getattr(User, key) == value
-                         ).first()
-            except NoResultFound as e:
-                print(e)
+                if not hasattr(User, key):  # Check if the attribute exists in the User model
+                    raise InvalidRequestError(f"Invalid attribute: {key}")
+                query = self._session.query(User).filter(getattr(User, key) == value)
+                user = query.first()
+                if not user:
+                    raise NoResultFound("No user found with the given arguments.")
+                return user
+
             except InvalidRequestError as e:
-                print(e)
-        return first_row
+                raise InvalidRequestError(f"Invalid request: {e}")
+            except NoResultFound as e:
+                raise NoResultFound(f"No result found: {e}")
 
     def update_user(self, id, **kwargs: dict) -> None:
         try:
