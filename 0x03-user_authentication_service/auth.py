@@ -5,7 +5,6 @@ from db import DB
 from sqlalchemy.orm.exc import NoResultFound
 
 
-
 class Auth:
     """Auth class to interact with the authentication database.
     """
