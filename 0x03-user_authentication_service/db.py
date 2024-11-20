@@ -32,35 +32,37 @@ class DB:
             self.__session = DBSession()
         return self.__session
 
-    def add_user(self, email, hashed_password):
+    def add_user(self, email: str, hashed_password: str) -> User:
         """creates and saves a new user object
         """
-        user = User(email= email, hashed_password=hashed_password)
+        user = User(email=email, hashed_password=hashed_password)
         self._session.add(user)
         self._session.commit()
-        
+
         return user
 
-    def find_user_by(self, **kwargs):
+    def find_user_by(self, **kwargs: dict) -> User:
         """ allows user search through  keyword
         """
         for key, value in kwargs.items():
             try:
-                first_row = self._session.query(User).filter(getattr(User, key) == value).first()
+                first_row = self._session.query(User).filter(
+                     getattr(User, key) == value
+                         ).first()
             except NoResultFound as e:
-                print (e)
+                print(e)
             except InvalidRequestError as e:
-                print (e)
+                print(e)
         return first_row
 
-    def update_user(self, id, **kwargs):
+    def update_user(self, id, **kwargs: dict) -> None:
         try:
-            user = self.find_user_by(id = id)
+            user = self.find_user_by(id=id)
             if not user:
                 raise ValueError("User not found.")
             for key, value in kwargs.items():
                 if hasattr(user, key):
-                    setattr(user, key,value)
+                    setattr(user, key, value)
                 else:
                     raise ValueError(f"invalid attribute: {key}")
 
@@ -70,17 +72,17 @@ class DB:
             self._session.rollback()
             raise e
 
-    def_hash_password(self, password):
-        # example password 
+    def hash_password(self, password: str) -> str:
+        # example password
         password = 'password123'
-  
-        # converting password to array of bytes 
-        bytes = password.encode('utf-8') 
-  
-        # generating the salt 
-        salt = bcrypt.gensalt() 
-  
-        # Hashing the password 
-        hash = bcrypt.hashpw(bytes, salt) 
-  
+
+        # converting password to array of bytes
+        bytes = password.encode('utf-8')
+
+        # generating the salt
+        salt = bcrypt.gensalt()
+
+        # Hashing the password
+        hash = bcrypt.hashpw(bytes, salt)
+
         return (hash)
