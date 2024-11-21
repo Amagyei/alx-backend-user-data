@@ -43,21 +43,25 @@ class Auth:
         user.session_id = _generate_uuid()
         return user.session_id
     
-    def get_user_from_session_id(self, session_id: str) -> Optional[User]:
-        """Retrieve a User object from a session ID."""
+    def get_user_from_session_id(self, session_id: str) -> Union[str, None]:
+        """It takes a single session_id string argument
+        Returns a string or None
+        """
         if session_id is None:
             return None
 
         try:
-            return self._db.find_user_by(session_id=session_id)
+            user = self._db.find_user_by(session_id=session_id)
         except NoResultFound:
             return None
+
+        return user
         
     
     def destroy_session(self, user_id):
         """Delete a User session from a user ID."""
         try:
-            user = self._db.find_user_by(user_id=user_id)
+            user = self._db.find_user_by(id=user_id)
             user.session_id = None
         except NoResultFound:
             return None
