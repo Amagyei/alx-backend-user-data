@@ -3,6 +3,8 @@
 """
 from flask import Flask, jsonify
 from auth import Auth
+from db import DB
+import bcrypt
 
 
 AUTH = Auth()
@@ -21,7 +23,7 @@ def Bienvenue() -> str:
     return jsonify({"message": "Bienvenue"})
 
 @app.route('/users', methods=['POST'])
-def users(request) -> str:
+def users(request) -> "Response":
     """ users route
     """
     email = request.form.get('email')
@@ -35,6 +37,7 @@ def users(request) -> str:
         return jsonify({"email": email, "message": "User created"}), 201
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
