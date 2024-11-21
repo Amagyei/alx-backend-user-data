@@ -3,7 +3,7 @@
 import bcrypt
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
-from typing import Optional
+from typing import Optional, Union
 from user import User
 import uuid
 
@@ -43,7 +43,7 @@ class Auth:
         user.session_id = _generate_uuid()
         return user.session_id
     
-    def get_user_from_session_id(self, session_id: str) -> Union[str, None]:
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
         """It takes a single session_id string argument
         Returns a string or None
         """
