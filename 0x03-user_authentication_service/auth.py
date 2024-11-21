@@ -44,12 +44,14 @@ class Auth:
         return user.session_id
     
     def get_user_from_session_id(self, session_id: str) -> Optional[User]:
+        """Retrieve a User object from a session ID."""
         try:
             user = self._db.find_user_by(session_id = session_id)
+            return user
         except Exception as e:
             return None
         
-        return user
+        
 
 
 def _hash_password(password: str) -> str:
