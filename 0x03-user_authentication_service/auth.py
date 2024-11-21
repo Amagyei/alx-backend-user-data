@@ -3,6 +3,8 @@
 import bcrypt
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
+from typing import Optional
+from user import User
 import uuid
 
 
@@ -40,6 +42,12 @@ class Auth:
         
         user.session_id = _generate_uuid()
         return user.session_id
+    
+    def get_user_from_session_id(self, session_id: str) -> Optional[User]:
+        try:
+            self._db.find_user_by(session_id = session_id)
+        except Exception as e:
+            return None
         
             
 
