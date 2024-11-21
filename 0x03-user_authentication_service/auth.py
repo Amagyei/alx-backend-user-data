@@ -48,10 +48,11 @@ class Auth:
         if not session_id:
             return None
         try:
-            user = self._db.update_user(id=session_id)
-            return user
-        except Exception as e:
+            user = self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
             return None
+
+        return user
     
     def destroy_session(self, user_id):
         """Delete a User session from a user ID."""
@@ -75,4 +76,4 @@ def _generate_uuid() -> str:
     """ generates a uuid
         private method
     """
-    return uuid.uuid4()
+    return str(uuid.uuid4())
