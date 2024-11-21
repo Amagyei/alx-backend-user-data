@@ -36,7 +36,7 @@ class Auth:
         try:
             user = self._db.find_user_by(email=email)
         except Exception as e:
-            return
+            return None
         
         user.session_id = _generate_uuid()
         return user.session_id
