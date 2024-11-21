@@ -50,7 +50,7 @@ class Auth:
         try:
             user = self._db.update_user(session_id=session_id)
             return user
-        except Exception as e:
+        except NoResultFound:
             return None
     
     def destroy_session(self, user_id):
