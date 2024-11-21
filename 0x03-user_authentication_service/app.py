@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ flask app
 """
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort, request
 from auth import Auth
 from db import DB
 import bcrypt
@@ -23,11 +23,11 @@ def Bienvenue() -> str:
     return jsonify({"message": "Bienvenue"})
 
 @app.route('/users', methods=['POST'])
-def users(request) -> "Response":
+def users() -> "Response":
     """ users route
     """
-    email = request.form.get('email')
-    password = request.form.get('password')
+    email = request.form['email']
+    password = request.form['password']
     missing_field = "email" if not email else "password" if not password else None
     if missing_field:
         return jsonify({"message": f"{missing_field} is missing"}), 400
@@ -37,6 +37,21 @@ def users(request) -> "Response":
         return jsonify({"email": email, "message": "User created"}), 201
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
+    
+@app.route('/sessions', methods=['POST'])
+def login() -> str:
+    email = request.form['email']
+    password = request.form['password']
+
+    missing_field = email if not email else password if not password else None
+    if missing_field:
+        return jsonify({"message": f"{missing_field} is missing"}), 401
+    
+    if AUTH.valid_login(email=email, password=password):
+        {"email": "<user email>", "message": "logged in"}
+    else:
+        return abort(401)
+
     
 
 if __name__ == "__main__":
