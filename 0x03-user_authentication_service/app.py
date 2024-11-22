@@ -1,43 +1,41 @@
 #!/usr/bin/env python3
-""" flask app
-"""
-from flask import Flask, jsonify, abort, request
+"""API Routes for Authentication Service"""
 from auth import Auth
-from db import DB
-import bcrypt
+from flask import (Flask,
+                   jsonify,
+                   request,
+                   abort,
+                   redirect)
 
-
+app = Flask(__name__)
 AUTH = Auth()
 
-# Flask constructor takes the name of 
-# current module (__name__) as argument.
-app = Flask(__name__)
 
-# The route() function of the Flask class is a decorator, 
-# which tells the application which URL should call 
-# the associated function.
 @app.route('/', methods=['GET'])
-def Bienvenue() -> str:
-    """ first route
-    """
-    return jsonify({"message": "Bienvenue"})
+def hello_world() -> str:
+    """ Base route for authentication service API """
+    msg = {"message": "Bienvenue"}
+    return jsonify(msg)
+
 
 @app.route('/users', methods=['POST'])
-def users() -> "Response":
-    """ users route
-    """
-    email = request.form['email']
-    password = request.form['password']
-    missing_field = "email" if not email else "password" if not password else None
-    if missing_field:
-        return jsonify({"message": f"{missing_field} is missing"}), 400
+def register_user() -> str:
+    """Registers a new user if it does not exist before"""
+    try:
+        email = request.form['email']
+        password = request.form['password']
+    except KeyError:
+        abort(400)
 
     try:
-        AUTH.register_user(email, password)
-        return jsonify({"email": email, "message": "User created"}), 201
+        user = AUTH.register_user(email, password)
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
-    
+
+    msg = {"email": email, "message": "user created"}
+    return jsonify(msg)
+
+
 @app.route('/sessions', methods=['POST'])
 def log_in() -> str:
     """ Logs in a user and returns session ID """
@@ -146,11 +144,6 @@ def update_password() -> str:
     msg = {"email": email, "message": "Password updated"}
     return jsonify(msg), 200
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000")
-
-    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
